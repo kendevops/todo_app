@@ -115,3 +115,7 @@ frontend/
 - Add more tests for higher coverage.
 - Extend filtering and sorting logic.
 - Implement additional themes or UI improvements (like sidebars and so on).
+
+## NOTE
+
+- I updated some changes that has to do with the validate-ip on the backend based on our conversation and i used mysql2 as the mysql it came with didn't work for me.
