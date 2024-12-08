@@ -6,6 +6,13 @@ import { errorHandlerMiddleware, routeMiddleware } from "./middlewares";
 import { Env } from "./env";
 // import { clientUse } from "valid-ip-scope";
 
+// Configure CORS options
+const corsOptions = {
+  origin: "http://localhost:5175",
+  credentials: true,
+};
+
+
 const setupServer = async () => {
   await dbCreate();
 
@@ -13,7 +20,7 @@ const setupServer = async () => {
 
   const app = express();
 
-  app.use(cors());
+  app.use(cors(corsOptions));
   app.use(express.json());
   // app.use(clientUse());
   app.use(routeMiddleware);

@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
-import Todos from "./pages/Dashboard";
+import Todos from "./pages/TodoList";
 
 function App() {
   return (
