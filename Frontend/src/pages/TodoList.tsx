@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { useAuth } from "../hooks/useAuth";
-import api from "@/utils/api";
+// import api from "@/utils/api";
 import { useTodos } from "../hooks/useTodos";
-import { Todo } from "@/types/Todo";
 import { useNavigate } from "react-router-dom";
+import { Todo } from "@/types/todo";
 
 const TodoList = () => {
   const { state: authState } = useAuth();
@@ -17,27 +17,115 @@ const TodoList = () => {
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
 
+  /* Wrote this incase the requirement needs todos to be done from the backend */
+  //   useEffect(() => {
+  //     if (!authState.isAuthenticated) {
+  //       navigate("/auth/login");
+  //       return;
+  //     }
+
+  //     // Set the authorization header with the token
+  //     api.defaults.headers.common["Authorization"] = `Bearer ${authState.token}`;
+
+  //     const fetchTodos = async () => {
+  //       try {
+  //         const res = await api.get("/todos");
+  //         dispatch({ type: "SET_TODOS", todos: res.data });
+  //       } catch (err) {
+  //         console.error(err);
+  //         setError("Failed to load todos.");
+  //       }
+  //     };
+
+  //     fetchTodos();
+  //   }, [authState.isAuthenticated, authState.token, navigate, dispatch]);
+
+  //   const resetForm = () => {
+  //     setTitle("");
+  //     setDescription("");
+  //     setDueDate("");
+  //     setEditTodoId(null);
+  //     setCompleted(false);
+  //     setError("");
+  //   };
+
+  //   const handleSubmit = async (e: React.FormEvent) => {
+  //     e.preventDefault();
+
+  //     if (!title.trim()) {
+  //       setError("Title is required.");
+  //       return;
+  //     }
+
+  //     try {
+  //       if (editTodoId !== null) {
+  //         // Update todo
+  //         const res = await api.put(`/todos/${editTodoId}`, {
+  //           title,
+  //           description,
+  //           dueDate,
+  //           completed,
+  //         });
+  //         dispatch({ type: "UPDATE_TODO", todo: res.data });
+  //       } else {
+  //         // Create new todo
+  //         const res = await api.post("/todos", {
+  //           title,
+  //           description,
+  //           dueDate,
+  //           completed,
+  //         });
+  //         dispatch({ type: "ADD_TODO", todo: res.data });
+  //       }
+  //       resetForm();
+  //     } catch (err) {
+  //       console.error(err);
+  //       setError("Failed to save todo.");
+  //     }
+  //   };
+
+  //   const handleEdit = (todo: Todo) => {
+  //     setEditTodoId(todo.id);
+  //     setTitle(todo.title);
+  //     setDescription(todo.description);
+  //     setDueDate(todo.dueDate);
+  //     setCompleted(todo.completed);
+  //     setError("");
+  //   };
+
+  //   const handleDelete = async (id: number) => {
+  //     try {
+  //       await api.delete(`/todos/${id}`);
+  //       dispatch({ type: "DELETE_TODO", id });
+  //     } catch (err) {
+  //       console.error(err);
+  //       setError("Failed to delete todo.");
+  //     }
+  //   };
+
+  // On mount, load todos from localStorage
   useEffect(() => {
     if (!authState.isAuthenticated) {
       navigate("/");
       return;
     }
 
-    // Set the authorization header with the token
-    api.defaults.headers.common["Authorization"] = `Bearer ${authState.token}`;
-
-    const fetchTodos = async () => {
-      try {
-        const res = await api.get("/todos");
-        dispatch({ type: "SET_TODOS", todos: res.data });
-      } catch (err) {
-        console.error(err);
-        setError("Failed to load todos.");
+    try {
+      const storedTodos = localStorage.getItem("todos");
+      if (storedTodos) {
+        const parsed = JSON.parse(storedTodos) as Todo[];
+        dispatch({ type: "SET_TODOS", todos: parsed });
       }
-    };
+    } catch (err) {
+      console.error(err);
+      setError("Failed to load todos from localStorage.");
+    }
+  }, [authState.isAuthenticated, navigate, dispatch]);
 
-    fetchTodos();
-  }, [authState.isAuthenticated, authState.token, navigate, dispatch]);
+  // Whenever todos change, sync them with localStorage
+  useEffect(() => {
+    localStorage.setItem("todos", JSON.stringify(todoState.todos));
+  }, [todoState.todos]);
 
   const resetForm = () => {
     setTitle("");
@@ -48,7 +136,7 @@ const TodoList = () => {
     setError("");
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
     if (!title.trim()) {
@@ -56,31 +144,32 @@ const TodoList = () => {
       return;
     }
 
-    try {
-      if (editTodoId !== null) {
-        // Update todo
-        const res = await api.put(`/todos/${editTodoId}`, {
-          title,
-          description,
-          dueDate,
-          completed,
-        });
-        dispatch({ type: "UPDATE_TODO", todo: res.data });
-      } else {
-        // Create new todo
-        const res = await api.post("/todos", {
-          title,
-          description,
-          dueDate,
-          completed,
-        });
-        dispatch({ type: "ADD_TODO", todo: res.data });
-      }
-      resetForm();
-    } catch (err) {
-      console.error(err);
-      setError("Failed to save todo.");
+    if (editTodoId !== null) {
+      const updatedTodo: Todo = {
+        id: editTodoId,
+        title,
+        description,
+        dueDate,
+        completed,
+      };
+      dispatch({ type: "UPDATE_TODO", todo: updatedTodo });
+    } else {
+      const newId =
+        todoState.todos.length > 0
+          ? Math.max(...todoState.todos.map((t) => t.id)) + 1
+          : 1;
+
+      const newTodo: Todo = {
+        id: newId,
+        title,
+        description,
+        dueDate,
+        completed,
+      };
+      dispatch({ type: "ADD_TODO", todo: newTodo });
     }
+
+    resetForm();
   };
 
   const handleEdit = (todo: Todo) => {
@@ -92,18 +181,12 @@ const TodoList = () => {
     setError("");
   };
 
-  const handleDelete = async (id: number) => {
-    try {
-      await api.delete(`/todos/${id}`);
-      dispatch({ type: "DELETE_TODO", id });
-    } catch (err) {
-      console.error(err);
-      setError("Failed to delete todo.");
-    }
+  const handleDelete = (id: number) => {
+    dispatch({ type: "DELETE_TODO", id });
   };
 
   return (
-    <div className="p-4 max-w-2xl mx-auto">
+    <div className="p-4 max-w-2xl mx-auto text-black">
       <h2 className="text-2xl font-semibold mb-4">My Todos</h2>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
@@ -218,6 +301,6 @@ const TodoList = () => {
       </ul>
     </div>
   );
-}
+};
 
 export default TodoList;

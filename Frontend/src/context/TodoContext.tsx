@@ -1,6 +1,6 @@
 /* eslint-disable react-refresh/only-export-components */
 import React, { createContext, useReducer } from "react";
-import { Todo } from "@/types/Todo";
+import { Todo } from "@/types/todo";
 
 type TodoState = {
   todos: Todo[];

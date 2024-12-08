@@ -16,7 +16,7 @@ const Login = () => {
     setError("");
 
     try {
-      const res = await api.post("/login", { email, password });
+      const res = await api.post("/auth/login", { email, password });
       const { token } = res.data;
       localStorage.setItem("token", token);
       dispatch({ type: "LOGIN", token });
@@ -28,7 +28,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-white p-6 rounded shadow">
+    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-white text-black p-6 rounded shadow">
       <h2 className="text-2xl font-semibold mb-6">Login</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleLogin} className="w-full">

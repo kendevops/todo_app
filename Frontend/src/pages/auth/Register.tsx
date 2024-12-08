@@ -26,9 +26,9 @@ const Register = () => {
     }
 
     try {
-      await api.post("/register", { username, email, password });
+      await api.post("/auth/register", { username, email, password });
       // If successful, redirect to login
-      navigate("/");
+      navigate("/auth/login");
     } catch (err) {
       console.error(err);
       setError("Registration failed. Please try again.");
@@ -36,7 +36,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-white p-6 rounded shadow">
+    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-white text-black p-6 rounded shadow">
       <h2 className="text-2xl font-semibold mb-6">Register</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleRegister} className="w-full">

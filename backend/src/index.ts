@@ -8,7 +8,7 @@ import { Env } from "./env";
 
 // Configure CORS options
 const corsOptions = {
-  origin: "http://localhost:5175",
+  origin: "http://localhost:5174",
   credentials: true,
 };
 
