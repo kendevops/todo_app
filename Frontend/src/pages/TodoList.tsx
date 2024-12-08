@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useAuth } from "../hooks/useAuth";
 // import api from "@/utils/api";
 import { useTodos } from "../hooks/useTodos";
@@ -16,6 +16,11 @@ const TodoList = () => {
   const [editTodoId, setEditTodoId] = useState<number | null>(null);
   const [completed, setCompleted] = useState(false);
   const [error, setError] = useState("");
+  const [completionFilter, setCompletionFilter] = useState<
+    "all" | "completed" | "notCompleted"
+  >("all");
+  const [dueDateFilter, setDueDateFilter] = useState("");
+  const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
 
   /* Wrote this incase the requirement needs todos to be done from the backend */
   //   useEffect(() => {
@@ -185,12 +190,101 @@ const TodoList = () => {
     dispatch({ type: "DELETE_TODO", id });
   };
 
+  // Compute displayedTodos based on filters and sorting
+  const displayedTodos = useMemo(() => {
+    let filtered = [...todoState.todos];
+
+    // Filter by completion
+    if (completionFilter === "completed") {
+      filtered = filtered.filter((t) => t.completed);
+    } else if (completionFilter === "notCompleted") {
+      filtered = filtered.filter((t) => !t.completed);
+    }
+
+    // Filter by due date (show todos due on or before the selected date)
+    if (dueDateFilter) {
+      filtered = filtered.filter((t) => {
+        if (!t.dueDate) return false;
+        const todoDate = new Date(t.dueDate);
+        const filterDate = new Date(dueDateFilter);
+        // Show only if due on or before the filter date
+        return todoDate <= filterDate;
+      });
+    }
+
+    // Sort by title
+    filtered.sort((a, b) => {
+      const compare = a.title.localeCompare(b.title, "en", {
+        sensitivity: "base",
+      });
+      return sortOrder === "asc" ? compare : -compare;
+    });
+
+    return filtered;
+  }, [todoState.todos, completionFilter, dueDateFilter, sortOrder]);
+
   return (
     <div className="p-4 max-w-2xl mx-auto text-black">
       <h2 className="text-2xl font-semibold mb-4">My Todos</h2>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
+      {/* Filters and sorting */}
+      <div className="mb-6 bg-white p-4 rounded shadow">
+        <h3 className="text-xl font-semibold mb-4">Filters & Sorting</h3>
+        <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
+          <div className="mb-4 md:mb-0">
+            <label
+              htmlFor="completionFilter"
+              className="block mb-1 font-medium"
+            >
+              Completion
+            </label>
+            <select
+              id="completionFilter"
+              className="border border-gray-300 rounded p-2 w-full"
+              value={completionFilter}
+              onChange={(e) =>
+                setCompletionFilter(
+                  e.target.value as "all" | "completed" | "notCompleted"
+                )
+              }
+            >
+              <option value="all">All</option>
+              <option value="completed">Completed</option>
+              <option value="notCompleted">Not Completed</option>
+            </select>
+          </div>
+
+          <div className="mb-4 md:mb-0">
+            <label htmlFor="dueDateFilter" className="block mb-1 font-medium">
+              Due Before or On
+            </label>
+            <input
+              id="dueDateFilter"
+              type="date"
+              className="border border-gray-300 rounded p-2 w-full"
+              value={dueDateFilter}
+              onChange={(e) => setDueDateFilter(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="sortOrder" className="block mb-1 font-medium">
+              Sort by Title
+            </label>
+            <select
+              id="sortOrder"
+              className="border border-gray-300 rounded p-2 w-full"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
+          </div>
+        </div>
+      </div>
       <form
         onSubmit={handleSubmit}
         className="mb-6 bg-white p-4 rounded shadow"
@@ -269,7 +363,7 @@ const TodoList = () => {
       </form>
 
       <ul className="space-y-4">
-        {todoState.todos.map((todo) => (
+        {displayedTodos.map((todo) => (
           <li
             key={todo.id}
             className="bg-white p-4 rounded shadow flex justify-between items-start"
