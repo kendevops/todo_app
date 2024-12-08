@@ -1,9 +1,11 @@
 import api from "@/utils/api";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const Register = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -27,7 +29,11 @@ const Register = () => {
 
     try {
       await api.post("/auth/register", { username, email, password });
-      // If successful, redirect to login
+      toast({
+        title: "Registeration Successful",
+        description: `Please login to access your todo`,
+        variant: "success",
+      });
       navigate("/auth/login");
     } catch (err) {
       console.error(err);

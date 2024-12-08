@@ -5,6 +5,8 @@ import App from "./App.tsx";
 import { ThemeProvider } from "@/components/theme-provider";
 import { AuthProvider } from "@/context/AuthContext";
 import { TodoProvider } from "@/context/TodoContext.tsx";
+import { Toaster } from "@/components/ui/toaster";
+
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -12,6 +14,7 @@ createRoot(document.getElementById("root")!).render(
       <TodoProvider>
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
           <App />
+          <Toaster />
         </ThemeProvider>
       </TodoProvider>
     </AuthProvider>

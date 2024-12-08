@@ -4,11 +4,14 @@ import { useAuth } from "../hooks/useAuth";
 import { useTodos } from "../hooks/useTodos";
 import { useNavigate } from "react-router-dom";
 import { Todo } from "@/types/todo";
+import { ModeToggle } from "@/components/mode-toggle";
+import { useToast } from "@/hooks/use-toast";
 
 const TodoList = () => {
-  const { state: authState } = useAuth();
+  const { state: authState, dispatch: authDispatch } = useAuth();
   const { state: todoState, dispatch } = useTodos();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -21,6 +24,7 @@ const TodoList = () => {
   >("all");
   const [dueDateFilter, setDueDateFilter] = useState("");
   const [sortOrder, setSortOrder] = useState<"asc" | "desc">("asc");
+  const [searchTerm, setSearchTerm] = useState("");
 
   /* Wrote this incase the requirement needs todos to be done from the backend */
   //   useEffect(() => {
@@ -157,6 +161,10 @@ const TodoList = () => {
         dueDate,
         completed,
       };
+      toast({
+        title: "Todo Updated successfully!",
+        variant: "success",
+      });
       dispatch({ type: "UPDATE_TODO", todo: updatedTodo });
     } else {
       const newId =
@@ -171,6 +179,10 @@ const TodoList = () => {
         dueDate,
         completed,
       };
+      toast({
+        title: "Todo Created successfully!",
+        variant: "success",
+      });
       dispatch({ type: "ADD_TODO", todo: newTodo });
     }
 
@@ -187,32 +199,49 @@ const TodoList = () => {
   };
 
   const handleDelete = (id: number) => {
+    toast({
+      title: "Todo Deleted successfully!",
+      variant: "success",
+    });
     dispatch({ type: "DELETE_TODO", id });
   };
 
-  // Compute displayedTodos based on filters and sorting
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    toast({
+      title: "Logged out successfully!!",
+    });
+    authDispatch({ type: "LOGOUT" });
+    navigate("/");
+  };
+
   const displayedTodos = useMemo(() => {
     let filtered = [...todoState.todos];
 
-    // Filter by completion
     if (completionFilter === "completed") {
       filtered = filtered.filter((t) => t.completed);
     } else if (completionFilter === "notCompleted") {
       filtered = filtered.filter((t) => !t.completed);
     }
 
-    // Filter by due date (show todos due on or before the selected date)
     if (dueDateFilter) {
       filtered = filtered.filter((t) => {
         if (!t.dueDate) return false;
         const todoDate = new Date(t.dueDate);
         const filterDate = new Date(dueDateFilter);
-        // Show only if due on or before the filter date
         return todoDate <= filterDate;
       });
     }
 
-    // Sort by title
+    if (searchTerm.trim()) {
+      const lowerSearch = searchTerm.toLowerCase();
+      filtered = filtered.filter(
+        (t) =>
+          t.title.toLowerCase().includes(lowerSearch) ||
+          t.description.toLowerCase().includes(lowerSearch)
+      );
+    }
+
     filtered.sort((a, b) => {
       const compare = a.title.localeCompare(b.title, "en", {
         sensitivity: "base",
@@ -221,16 +250,31 @@ const TodoList = () => {
     });
 
     return filtered;
-  }, [todoState.todos, completionFilter, dueDateFilter, sortOrder]);
+  }, [todoState.todos, completionFilter, dueDateFilter, sortOrder, searchTerm]);
 
   return (
-    <div className="p-4 max-w-2xl mx-auto text-black">
+    <div className="p-4 max-w-2xl mx-auto text-card-foreground">
       <h2 className="text-2xl font-semibold mb-4">My Todos</h2>
+      {/* Nav Bar */}
+      <nav className="flex items-center justify-between mb-6 bg-accent p-4 rounded shadow">
+        <input
+          type="text"
+          placeholder="Search todos..."
+          className="border border-gray-300 text-black rounded p-2 w-1/2"
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+        />
+        <ModeToggle />
+        <button
+          onClick={handleLogout}
+          className="bg-red-600 text-white py-2 px-4 rounded hover:bg-red-700 ml-4"
+        >
+          Logout
+        </button>
+      </nav>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
-
-      {/* Filters and sorting */}
-      <div className="mb-6 bg-white p-4 rounded shadow">
+      <div className="mb-6 bg-accent p-4 rounded shadow">
         <h3 className="text-xl font-semibold mb-4">Filters & Sorting</h3>
         <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
           <div className="mb-4 md:mb-0">
@@ -287,7 +331,7 @@ const TodoList = () => {
       </div>
       <form
         onSubmit={handleSubmit}
-        className="mb-6 bg-white p-4 rounded shadow"
+        className="mb-6 bg-accent p-4 rounded shadow"
       >
         <h3 className="text-xl font-semibold mb-4">
           {editTodoId ? "Edit Todo" : "Add New Todo"}
@@ -299,7 +343,7 @@ const TodoList = () => {
           <input
             id="title"
             type="text"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             required
@@ -312,7 +356,7 @@ const TodoList = () => {
           </label>
           <textarea
             id="description"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={description}
             onChange={(e) => setDescription(e.target.value)}
           />
@@ -325,7 +369,7 @@ const TodoList = () => {
           <input
             id="dueDate"
             type="date"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={dueDate}
             onChange={(e) => setDueDate(e.target.value)}
           />
@@ -366,11 +410,11 @@ const TodoList = () => {
         {displayedTodos.map((todo) => (
           <li
             key={todo.id}
-            className="bg-white p-4 rounded shadow flex justify-between items-start"
+            className="bg-accent p-4 rounded shadow flex justify-between items-start"
           >
             <div>
               <h4 className="text-lg font-semibold">{todo.title}</h4>
-              <p className="text-sm text-gray-600">{todo.description}</p>
+              <p className="text-sm">{todo.description}</p>
               <p className="text-sm">Due: {todo.dueDate}</p>
               <p className="text-sm">
                 {todo.completed ? "Completed" : "Not Completed"}

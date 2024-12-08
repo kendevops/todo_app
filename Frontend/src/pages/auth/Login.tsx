@@ -2,10 +2,12 @@ import { FormEvent, useState } from "react";
 import api from "@/utils/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 const Login = () => {
   const { dispatch } = useAuth();
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -19,6 +21,11 @@ const Login = () => {
       const res = await api.post("/auth/login", { email, password });
       const { token } = res.data;
       localStorage.setItem("token", token);
+      toast({
+        title: "Login Successful",
+        description: `Welcome ${email}`,
+        variant: "success",
+      });
       dispatch({ type: "LOGIN", token });
       navigate("/dashboard");
     } catch (err) {
@@ -28,7 +35,7 @@ const Login = () => {
   };
 
   return (
-    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-white text-black p-6 rounded shadow">
+    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-accent text-foreground p-6 rounded shadow">
       <h2 className="text-2xl font-semibold mb-6">Login</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleLogin} className="w-full">
@@ -73,6 +80,6 @@ const Login = () => {
       </p>
     </div>
   );
-}
+};
 
 export default Login;
