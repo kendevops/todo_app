@@ -7,6 +7,17 @@ import { Todo } from "@/types/todo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useToast } from "@/hooks/use-toast";
 import { LogOutIcon } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const TodoList = () => {
   const { state: authState, dispatch: authDispatch } = useAuth();
@@ -308,63 +319,62 @@ const TodoList = () => {
       </nav>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      {displayedTodos.length !== 0 && (
-        <div className="mb-6 bg-accent p-4 rounded shadow">
-          <h3 className="text-xl font-semibold mb-4">Filters & Sorting</h3>
-          <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
-            <div className="mb-4 md:mb-0">
-              <label
-                htmlFor="completionFilter"
-                className="block mb-1 font-medium"
-              >
-                Completion
-              </label>
-              <select
-                id="completionFilter"
-                className="border border-gray-300 rounded p-2 w-full text-black"
-                value={completionFilter}
-                onChange={(e) =>
-                  setCompletionFilter(
-                    e.target.value as "all" | "completed" | "notCompleted"
-                  )
-                }
-              >
-                <option value="all">All</option>
-                <option value="completed">Completed</option>
-                <option value="notCompleted">Not Completed</option>
-              </select>
-            </div>
 
-            <div className="mb-4 md:mb-0">
-              <label htmlFor="dueDateFilter" className="block mb-1 font-medium">
-                Due Before or On
-              </label>
-              <input
-                id="dueDateFilter"
-                type="date"
-                className="border border-gray-300 rounded p-2 w-full text-black"
-                value={dueDateFilter}
-                onChange={(e) => setDueDateFilter(e.target.value)}
-              />
-            </div>
+      <div className="mb-6 bg-accent p-4 rounded shadow">
+        <h3 className="text-xl font-semibold mb-4">Filters & Sorting</h3>
+        <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
+          <div className="mb-4 md:mb-0">
+            <label
+              htmlFor="completionFilter"
+              className="block mb-1 font-medium"
+            >
+              Completion
+            </label>
+            <select
+              id="completionFilter"
+              className="border border-gray-300 rounded p-2 w-full text-black"
+              value={completionFilter}
+              onChange={(e) =>
+                setCompletionFilter(
+                  e.target.value as "all" | "completed" | "notCompleted"
+                )
+              }
+            >
+              <option value="all">All</option>
+              <option value="completed">Completed</option>
+              <option value="notCompleted">Not Completed</option>
+            </select>
+          </div>
 
-            <div>
-              <label htmlFor="sortOrder" className="block mb-1 font-medium">
-                Sort by Title
-              </label>
-              <select
-                id="sortOrder"
-                className="border border-gray-300 rounded p-2 w-full text-black"
-                value={sortOrder}
-                onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
-              >
-                <option value="asc">Ascending</option>
-                <option value="desc">Descending</option>
-              </select>
-            </div>
+          <div className="mb-4 md:mb-0">
+            <label htmlFor="dueDateFilter" className="block mb-1 font-medium">
+              Due Before or On
+            </label>
+            <input
+              id="dueDateFilter"
+              type="date"
+              className="border border-gray-300 rounded p-2 w-full text-black"
+              value={dueDateFilter}
+              onChange={(e) => setDueDateFilter(e.target.value)}
+            />
+          </div>
+
+          <div>
+            <label htmlFor="sortOrder" className="block mb-1 font-medium">
+              Sort by Title
+            </label>
+            <select
+              id="sortOrder"
+              className="border border-gray-300 rounded p-2 w-full text-black"
+              value={sortOrder}
+              onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+            >
+              <option value="asc">Ascending</option>
+              <option value="desc">Descending</option>
+            </select>
           </div>
         </div>
-      )}
+      </div>
 
       {displayedTodos.length === 0 ? (
         <div className="text-foreground text-center text-3xl font-bold">
@@ -428,12 +438,35 @@ const TodoList = () => {
                 >
                   Edit
                 </button>
-                <button
+                {/* <button
                   onClick={() => handleDelete(todo.id)}
                   className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
                 >
                   Delete
-                </button>
+                </button> */}
+                <AlertDialog>
+                  <AlertDialogTrigger className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700">
+                    Delete
+                  </AlertDialogTrigger>
+                  <AlertDialogContent>
+                    <AlertDialogHeader>
+                      <AlertDialogTitle>
+                        Are you sure you want to{" "}
+                        <span className="text-red-600">Delete</span>?
+                      </AlertDialogTitle>
+                      <AlertDialogDescription>
+                        This action cannot be undone. This will permanently
+                        delete your todo and remove your data from our servers.
+                      </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                      <AlertDialogCancel>Cancel</AlertDialogCancel>
+                      <AlertDialogAction onClick={() => handleDelete(todo.id)}>
+                        Continue
+                      </AlertDialogAction>
+                    </AlertDialogFooter>
+                  </AlertDialogContent>
+                </AlertDialog>
               </div>
             </li>
           ))}
