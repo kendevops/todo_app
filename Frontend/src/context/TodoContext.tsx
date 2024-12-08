@@ -1,12 +1,12 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useReducer } from "react";
-import { Todo } from "@/types/todo";
+import { createContext, useReducer } from "react";
+import { Todo } from "@/types/Todo";
 
 type TodoState = {
   todos: Todo[];
 };
 
-type TodoAction =
+export type TodoAction =
   | { type: "SET_TODOS"; todos: Todo[] }
   | { type: "ADD_TODO"; todo: Todo }
   | { type: "UPDATE_TODO"; todo: Todo }
@@ -16,7 +16,7 @@ const initialState: TodoState = {
   todos: [],
 };
 
-function todoReducer(state: TodoState, action: TodoAction): TodoState {
+export function todoReducer(state: TodoState, action: TodoAction): TodoState {
   switch (action.type) {
     case "SET_TODOS":
       return { ...state, todos: action.todos };

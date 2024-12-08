@@ -1,19 +1,19 @@
 /* eslint-disable react-refresh/only-export-components */
-import React, { createContext, useReducer, useEffect } from "react";
+import { createContext, useReducer, useEffect } from "react";
 
 type AuthState = {
   token: string | null;
   isAuthenticated: boolean;
 };
 
-type AuthAction = { type: "LOGIN"; token: string } | { type: "LOGOUT" };
+export type AuthAction = { type: "LOGIN"; token: string } | { type: "LOGOUT" };
 
 const initialState: AuthState = {
   token: null,
   isAuthenticated: false,
 };
 
-function authReducer(state: AuthState, action: AuthAction): AuthState {
+export function authReducer(state: AuthState, action: AuthAction): AuthState {
   switch (action.type) {
     case "LOGIN":
       return {

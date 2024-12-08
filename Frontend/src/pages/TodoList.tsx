@@ -3,7 +3,7 @@ import { useAuth } from "../hooks/useAuth";
 // import api from "@/utils/api";
 import { useTodos } from "../hooks/useTodos";
 import { useNavigate } from "react-router-dom";
-import { Todo } from "@/types/todo";
+import { Todo } from "@/types/Todo";
 import { ModeToggle } from "@/components/mode-toggle";
 import { useToast } from "@/hooks/use-toast";
 import { LogOutIcon } from "lucide-react";
@@ -19,7 +19,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { z } from "zod";
-
 
 // Todo schema
 const todoSchema = z.object({
@@ -179,17 +178,17 @@ const TodoList = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-   const result = todoSchema.safeParse({
-     title,
-     description,
-     dueDate: dueDate || undefined, // if empty string, make it undefined
-     completed,
-   });
+    const result = todoSchema.safeParse({
+      title,
+      description,
+      dueDate: dueDate || undefined, // if empty string, make it undefined
+      completed,
+    });
 
-   if (!result.success) {
-     setError(result.error.issues[0].message);
-     return;
-   }
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
 
     if (editTodoId !== null) {
       const updatedTodo: Todo = {

@@ -48,7 +48,7 @@ const Login = () => {
 
   return (
     <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-accent text-foreground p-6 rounded shadow">
-      <h2 className="text-2xl font-semibold mb-6">Login</h2>
+      <h2 className="text-2xl font-semibold mb-6">Sign In</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleLogin} className="w-full">
         <div className="mb-4">
@@ -61,7 +61,6 @@ const Login = () => {
             className="border border-gray-300 rounded w-full p-2 text-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
           />
         </div>
         <div className="mb-4">
@@ -74,7 +73,6 @@ const Login = () => {
             className="border border-gray-300 rounded w-full p-2 text-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            required
           />
         </div>
         <button

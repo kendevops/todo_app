@@ -4,8 +4,12 @@
     { "path": "./tsconfig.app.json" },
     { "path": "./tsconfig.node.json" }
   ],
+  "types": ["node", "jest", "@testing-library/jest-dom"],
   "compilerOptions": {
     "baseUrl": ".",
+    "esModuleInterop": true,
+    "allowSyntheticDefaultImports": true,
+    "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"]
     }
