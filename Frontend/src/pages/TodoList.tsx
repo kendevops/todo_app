@@ -20,11 +20,11 @@ import {
 } from "@/components/ui/alert-dialog";
 import { z } from "zod";
 
-// Todo schema
+// Define a Zod schema to validate todo fields
 const todoSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
-  dueDate: z.string().optional(), // We can also refine if we want to ensure a valid date.
+  dueDate: z.string().optional(),
   completed: z.boolean(),
 });
 
@@ -34,6 +34,7 @@ const TodoList = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Local state for managing current form fields and modal visibility
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [dueDate, setDueDate] = useState("");
@@ -42,6 +43,7 @@ const TodoList = () => {
   const [error, setError] = useState("");
   const [showModal, setShowModal] = useState(false);
 
+  // Filters and sorting states
   const [completionFilter, setCompletionFilter] = useState<
     "all" | "completed" | "notCompleted"
   >("all");
@@ -136,8 +138,9 @@ const TodoList = () => {
   //     }
   //   };
 
-  // On mount, load todos from localStorage
+  /* End */
 
+  // On mount, load todos from localStorage
   useEffect(() => {
     if (!authState.isAuthenticated) {
       navigate("/");
@@ -170,11 +173,13 @@ const TodoList = () => {
     setError("");
   };
 
+  // Open the modal for creating a new todo
   const handleOpenModalForCreate = () => {
     resetForm();
     setShowModal(true);
   };
 
+  // Handle form submission for creating/editing a todo
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -227,6 +232,7 @@ const TodoList = () => {
     setShowModal(false);
   };
 
+  // Populate the form fields with an existing todo for editing
   const handleOpenModalForEdit = (todo: Todo) => {
     setEditTodoId(todo.id);
     setTitle(todo.title);
@@ -237,6 +243,7 @@ const TodoList = () => {
     setShowModal(true);
   };
 
+  // Delete a todo from the list
   const handleDelete = (id: number) => {
     toast({
       title: "Todo Deleted successfully!",
@@ -245,6 +252,7 @@ const TodoList = () => {
     dispatch({ type: "DELETE_TODO", id });
   };
 
+  // Logout the user by clearing the token and dispatching a logout action
   const handleLogout = () => {
     localStorage.removeItem("token");
     toast({
@@ -254,6 +262,7 @@ const TodoList = () => {
     navigate("/");
   };
 
+  // Toggle the completion status of a todo
   const handleToggleCompletion = (todo: Todo) => {
     const updatedTodo: Todo = { ...todo, completed: !todo.completed };
     dispatch({ type: "UPDATE_TODO", todo: updatedTodo });
@@ -265,15 +274,18 @@ const TodoList = () => {
     });
   };
 
+  // Compute the displayed todos based on filters and sorting criteria
   const displayedTodos = useMemo(() => {
     let filtered = [...todoState.todos];
 
+    // Filter by completion status
     if (completionFilter === "completed") {
       filtered = filtered.filter((t) => t.completed);
     } else if (completionFilter === "notCompleted") {
       filtered = filtered.filter((t) => !t.completed);
     }
 
+    // Filter by due date
     if (dueDateFilter) {
       filtered = filtered.filter((t) => {
         if (!t.dueDate) return false;
@@ -283,6 +295,7 @@ const TodoList = () => {
       });
     }
 
+    // Search by title/description
     if (searchTerm.trim()) {
       const lowerSearch = searchTerm.toLowerCase();
       filtered = filtered.filter(
@@ -292,6 +305,7 @@ const TodoList = () => {
       );
     }
 
+    // Sort by title
     filtered.sort((a, b) => {
       const compare = a.title.localeCompare(b.title, "en", {
         sensitivity: "base",
@@ -336,6 +350,7 @@ const TodoList = () => {
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
 
+      {/* Filters and Sorting Section */}
       <div className="mb-6 bg-accent p-4 rounded shadow">
         <h3 className="text-xl font-semibold mb-4">Filters & Sorting</h3>
         <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
@@ -392,6 +407,7 @@ const TodoList = () => {
         </div>
       </div>
 
+      {/* Display the todo list or a message if none exist */}
       {displayedTodos.length === 0 ? (
         <div className="text-foreground text-center text-3xl font-bold">
           No Created Todos yet!
@@ -482,6 +498,8 @@ const TodoList = () => {
           ))}
         </ul>
       )}
+
+      {/* Modal for creating or editing a todo */}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-accent p-6 rounded shadow w-full max-w-md relative">

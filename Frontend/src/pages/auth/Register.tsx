@@ -4,9 +4,12 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
+// Zod schema for registration validation
 const registerSchema = z
   .object({
-    username: z.string().min(3, "Username is required with atleast 3 characters"),
+    username: z
+      .string()
+      .min(3, "Username is required with atleast 3 characters"),
     email: z.string().email("Please enter a valid email"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
@@ -20,16 +23,19 @@ const Register = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // State for form fields and errors
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
 
+  // Handle registration form submission
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
+    // Validate inputs using the Zod schema
     const result = registerSchema.safeParse({
       username,
       email,
@@ -41,6 +47,7 @@ const Register = () => {
       return;
     }
 
+    // Additional checks (though the schema already checks confirmPassword)
     if (password !== confirmPassword) {
       setError("Passwords do not match");
       return;
@@ -52,7 +59,10 @@ const Register = () => {
     }
 
     try {
+      // Send registration request to backend
       await api.post("/auth/register", { username, email, password });
+
+      // Show success toast and navigate to login page
       toast({
         title: "Registeration Successful",
         description: `Please login to access your todo`,
@@ -60,6 +70,7 @@ const Register = () => {
       });
       navigate("/auth/login");
     } catch (err) {
+      // Handle registration errors
       console.error(err);
       setError("Registration failed. Please try again.");
     }
@@ -68,6 +79,7 @@ const Register = () => {
   return (
     <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-accent text-foreground p-6 rounded shadow">
       <h2 className="text-2xl font-semibold mb-6">Register</h2>
+      {/* Display validation or server errors */}
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleRegister} className="w-full">
         <div className="mb-4">

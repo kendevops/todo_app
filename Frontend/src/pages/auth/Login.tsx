@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { z } from "zod";
 
+// Define a Zod schema to validate login inputs (email and password)
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(1, "Password is required"),
@@ -15,23 +16,30 @@ const Login = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
+  // Component state to store form inputs and potential error messages
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
 
+  // Handle login form submission
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
 
+    // Validate inputs using Zod schema
     const result = loginSchema.safeParse({ email, password });
     if (!result.success) {
+      // If validation fails, set the error state to the first validation issue
       setError(result.error.issues[0].message);
       return;
     }
 
     try {
+      // Send login request to backend
       const res = await api.post("/auth/login", { email, password });
       const { token } = res.data;
+
+      // Store token in localStorage and update auth context
       localStorage.setItem("token", token);
       toast({
         title: "Login Successful",
