@@ -111,7 +111,7 @@ frontend/
 
 **Additional Customization (If i am to suggest)**
 
-- Currently the app state for the CRUD operation is handled on the frontend so i would Integrate a backend API for persistent data.
+- Currently the app state for the CRUD operation is handled on the frontend so i would Integrate a backend API for persistent data (I added the code in the TodoList but commented it out to show what my thoght process would be like if there was backend routes to do that).
 - Add more tests for higher coverage.
 - Extend filtering and sorting logic.
 - Implement additional themes or UI improvements (like sidebars and so on).
