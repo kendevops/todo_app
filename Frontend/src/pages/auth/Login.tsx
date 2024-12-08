@@ -3,6 +3,12 @@ import api from "@/utils/api";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const loginSchema = z.object({
+  email: z.string().email("Please enter a valid email"),
+  password: z.string().min(1, "Password is required"),
+});
 
 const Login = () => {
   const { dispatch } = useAuth();
@@ -16,6 +22,12 @@ const Login = () => {
   const handleLogin = async (e: FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const result = loginSchema.safeParse({ email, password });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
 
     try {
       const res = await api.post("/auth/login", { email, password });

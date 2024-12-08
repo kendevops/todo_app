@@ -2,6 +2,19 @@ import api from "@/utils/api";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { z } from "zod";
+
+const registerSchema = z
+  .object({
+    username: z.string().min(3, "Username is required with atleast 3 characters"),
+    email: z.string().email("Please enter a valid email"),
+    password: z.string().min(6, "Password must be at least 6 characters"),
+    confirmPassword: z.string(),
+  })
+  .refine((data) => data.password === data.confirmPassword, {
+    message: "Passwords do not match",
+    path: ["confirmPassword"],
+  });
 
 const Register = () => {
   const navigate = useNavigate();
@@ -16,6 +29,17 @@ const Register = () => {
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
+
+    const result = registerSchema.safeParse({
+      username,
+      email,
+      password,
+      confirmPassword,
+    });
+    if (!result.success) {
+      setError(result.error.issues[0].message);
+      return;
+    }
 
     if (password !== confirmPassword) {
       setError("Passwords do not match");

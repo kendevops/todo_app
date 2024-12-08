@@ -18,6 +18,16 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { z } from "zod";
+
+
+// Todo schema
+const todoSchema = z.object({
+  title: z.string().min(1, "Title is required"),
+  description: z.string().optional(),
+  dueDate: z.string().optional(), // We can also refine if we want to ensure a valid date.
+  completed: z.boolean(),
+});
 
 const TodoList = () => {
   const { state: authState, dispatch: authDispatch } = useAuth();
@@ -169,10 +179,17 @@ const TodoList = () => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!title.trim()) {
-      setError("Title is required.");
-      return;
-    }
+   const result = todoSchema.safeParse({
+     title,
+     description,
+     dueDate: dueDate || undefined, // if empty string, make it undefined
+     completed,
+   });
+
+   if (!result.success) {
+     setError(result.error.issues[0].message);
+     return;
+   }
 
     if (editTodoId !== null) {
       const updatedTodo: Todo = {
@@ -438,12 +455,6 @@ const TodoList = () => {
                 >
                   Edit
                 </button>
-                {/* <button
-                  onClick={() => handleDelete(todo.id)}
-                  className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
-                >
-                  Delete
-                </button> */}
                 <AlertDialog>
                   <AlertDialogTrigger className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700">
                     Delete
