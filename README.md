@@ -119,3 +119,5 @@ frontend/
 ## NOTE
 
 - I updated some changes that has to do with the validate-ip on the backend based on our conversation and i used mysql2 as the mysql it came with didn't work for me.
+
+- I added screenshots of the app in the frontend folder readme file.
