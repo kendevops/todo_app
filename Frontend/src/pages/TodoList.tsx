@@ -117,6 +117,7 @@ const TodoList = () => {
   //   };
 
   // On mount, load todos from localStorage
+
   useEffect(() => {
     if (!authState.isAuthenticated) {
       navigate("/");
@@ -196,6 +197,7 @@ const TodoList = () => {
     }
 
     resetForm();
+    setShowModal(false);
   };
 
   const handleOpenModalForEdit = (todo: Todo) => {
@@ -223,6 +225,17 @@ const TodoList = () => {
     });
     authDispatch({ type: "LOGOUT" });
     navigate("/");
+  };
+
+  const handleToggleCompletion = (todo: Todo) => {
+    const updatedTodo: Todo = { ...todo, completed: !todo.completed };
+    dispatch({ type: "UPDATE_TODO", todo: updatedTodo });
+    toast({
+      title: `Todo marked as ${
+        updatedTodo.completed ? "completed" : "incomplete"
+      }!`,
+      variant: "success",
+    });
   };
 
   const displayedTodos = useMemo(() => {
@@ -288,99 +301,144 @@ const TodoList = () => {
           type="text"
           placeholder="Search todos..."
           className="border border-gray-300 text-black rounded-lg p-2 w-1/2"
+          disabled={displayedTodos.length === 0 && true}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
       </nav>
 
       {error && <p className="text-red-500 mb-4">{error}</p>}
-      <div className="mb-6 bg-accent p-4 rounded shadow">
-        <h3 className="text-xl font-semibold mb-4">Filters & Sorting</h3>
-        <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
-          <div className="mb-4 md:mb-0">
-            <label
-              htmlFor="completionFilter"
-              className="block mb-1 font-medium"
-            >
-              Completion
-            </label>
-            <select
-              id="completionFilter"
-              className="border border-gray-300 rounded p-2 w-full text-black"
-              value={completionFilter}
-              onChange={(e) =>
-                setCompletionFilter(
-                  e.target.value as "all" | "completed" | "notCompleted"
-                )
-              }
-            >
-              <option value="all">All</option>
-              <option value="completed">Completed</option>
-              <option value="notCompleted">Not Completed</option>
-            </select>
-          </div>
+      {displayedTodos.length !== 0 && (
+        <div className="mb-6 bg-accent p-4 rounded shadow">
+          <h3 className="text-xl font-semibold mb-4">Filters & Sorting</h3>
+          <div className="mb-4 flex flex-col md:flex-row md:space-x-4">
+            <div className="mb-4 md:mb-0">
+              <label
+                htmlFor="completionFilter"
+                className="block mb-1 font-medium"
+              >
+                Completion
+              </label>
+              <select
+                id="completionFilter"
+                className="border border-gray-300 rounded p-2 w-full text-black"
+                value={completionFilter}
+                onChange={(e) =>
+                  setCompletionFilter(
+                    e.target.value as "all" | "completed" | "notCompleted"
+                  )
+                }
+              >
+                <option value="all">All</option>
+                <option value="completed">Completed</option>
+                <option value="notCompleted">Not Completed</option>
+              </select>
+            </div>
 
-          <div className="mb-4 md:mb-0">
-            <label htmlFor="dueDateFilter" className="block mb-1 font-medium">
-              Due Before or On
-            </label>
-            <input
-              id="dueDateFilter"
-              type="date"
-              className="border border-gray-300 rounded p-2 w-full text-black"
-              value={dueDateFilter}
-              onChange={(e) => setDueDateFilter(e.target.value)}
-            />
-          </div>
+            <div className="mb-4 md:mb-0">
+              <label htmlFor="dueDateFilter" className="block mb-1 font-medium">
+                Due Before or On
+              </label>
+              <input
+                id="dueDateFilter"
+                type="date"
+                className="border border-gray-300 rounded p-2 w-full text-black"
+                value={dueDateFilter}
+                onChange={(e) => setDueDateFilter(e.target.value)}
+              />
+            </div>
 
-          <div>
-            <label htmlFor="sortOrder" className="block mb-1 font-medium">
-              Sort by Title
-            </label>
-            <select
-              id="sortOrder"
-              className="border border-gray-300 rounded p-2 w-full text-black"
-              value={sortOrder}
-              onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
-            >
-              <option value="asc">Ascending</option>
-              <option value="desc">Descending</option>
-            </select>
+            <div>
+              <label htmlFor="sortOrder" className="block mb-1 font-medium">
+                Sort by Title
+              </label>
+              <select
+                id="sortOrder"
+                className="border border-gray-300 rounded p-2 w-full text-black"
+                value={sortOrder}
+                onChange={(e) => setSortOrder(e.target.value as "asc" | "desc")}
+              >
+                <option value="asc">Ascending</option>
+                <option value="desc">Descending</option>
+              </select>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
-      <ul className="space-y-4">
-        {displayedTodos.map((todo) => (
-          <li
-            key={todo.id}
-            className="bg-accent p-4 rounded shadow flex justify-between items-start"
-          >
-            <div>
-              <h4 className="text-lg font-semibold">{todo.title}</h4>
-              <p className="text-sm">{todo.description}</p>
-              <p className="text-sm">Due: {todo.dueDate}</p>
-              <p className="text-sm">
-                {todo.completed ? "Completed" : "Not Completed"}
-              </p>
-            </div>
-            <div className="flex space-x-2">
-              <button
-                onClick={() => handleOpenModalForEdit(todo)}
-                className="bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700"
-              >
-                Edit
-              </button>
-              <button
-                onClick={() => handleDelete(todo.id)}
-                className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
-              >
-                Delete
-              </button>
-            </div>
-          </li>
-        ))}
-      </ul>
+      {displayedTodos.length === 0 ? (
+        <div className="text-foreground text-center text-3xl font-bold">
+          No Created Todos yet!
+        </div>
+      ) : (
+        <ul className="space-y-4">
+          {displayedTodos.map((todo) => (
+            <li
+              key={todo.id}
+              className="bg-accent p-4 rounded shadow flex justify-between items-start"
+            >
+              <div>
+                <div className="flex items-center mb-2">
+                  <h4
+                    className={`text-lg font-semibold ${
+                      todo.completed
+                        ? "line-through decoration-4 decoration-green-700"
+                        : ""
+                    }`}
+                  >
+                    {todo.title}
+                  </h4>
+                  <input
+                    type="checkbox"
+                    checked={todo.completed}
+                    onChange={() => handleToggleCompletion(todo)}
+                    className="ml-4"
+                  />
+                </div>
+                <p
+                  className={`text-sm ${
+                    todo.completed
+                      ? "line-through decoration-4 decoration-green-700"
+                      : ""
+                  }`}
+                >
+                  {todo.description}
+                </p>
+                <p
+                  className={`text-sm mb-4 ${
+                    todo.completed
+                      ? "line-through decoration-4 decoration-green-700"
+                      : ""
+                  }`}
+                >
+                  Due: {todo.dueDate}
+                </p>
+                <p
+                  className={`text-sm ${
+                    todo.completed ? "text-green-800" : ""
+                  }`}
+                >
+                  {todo.completed ? "Completed" : "Not Completed"}
+                </p>
+              </div>
+              <div className="flex space-x-2">
+                <button
+                  onClick={() => handleOpenModalForEdit(todo)}
+                  className="bg-blue-600 text-white py-1 px-3 rounded hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(todo.id)}
+                  className="bg-red-600 text-white py-1 px-3 rounded hover:bg-red-700"
+                >
+                  Delete
+                </button>
+              </div>
+            </li>
+          ))}
+        </ul>
+      )}
       {showModal && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-accent p-6 rounded shadow w-full max-w-md relative">

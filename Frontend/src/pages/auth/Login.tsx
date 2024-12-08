@@ -46,7 +46,7 @@ const Login = () => {
           <input
             id="email"
             type="email"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -59,7 +59,7 @@ const Login = () => {
           <input
             id="password"
             type="password"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -67,7 +67,7 @@ const Login = () => {
         </div>
         <button
           type="submit"
-          className="bg-blue-600 text-white py-2 px-4 rounded hover:bg-blue-700 w-full"
+          className="bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700 w-full"
         >
           Login
         </button>

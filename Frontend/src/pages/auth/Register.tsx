@@ -42,7 +42,7 @@ const Register = () => {
   };
 
   return (
-    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-white text-black p-6 rounded shadow">
+    <div className="flex flex-col items-center max-w-sm mx-auto mt-20 bg-accent text-foreground p-6 rounded shadow">
       <h2 className="text-2xl font-semibold mb-6">Register</h2>
       {error && <p className="text-red-500 mb-4">{error}</p>}
       <form onSubmit={handleRegister} className="w-full">
@@ -53,7 +53,7 @@ const Register = () => {
           <input
             id="username"
             type="text"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             required
@@ -67,7 +67,7 @@ const Register = () => {
           <input
             id="email"
             type="email"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -81,7 +81,7 @@ const Register = () => {
           <input
             id="password"
             type="password"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
@@ -95,7 +95,7 @@ const Register = () => {
           <input
             id="confirmPassword"
             type="password"
-            className="border border-gray-300 rounded w-full p-2"
+            className="border border-gray-300 rounded w-full p-2 text-black"
             value={confirmPassword}
             onChange={(e) => setConfirmPassword(e.target.value)}
             required
